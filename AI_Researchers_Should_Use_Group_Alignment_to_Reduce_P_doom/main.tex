@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage{blog_style}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm,mathtools,bm}
+\usepackage{booktabs,tabularx,nicefrac,microtype,xcolor,graphicx}
+\usepackage{subcaption,float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+\usepackage[nameinlink]{cleveref}
+\graphicspath{{images/}}
+% Bibtex settings
+\usepackage{xparse}
+\usepackage[
+    backend=biber,
+    natbib=true,
+    style=authoryear,
+    sorting=nyt,
+    maxcitenames=2,
+    mincitenames=1,
+    maxbibnames=99,
+    uniquelist=false,
+    uniquename=false,
+    useprefix,
+    doi=false,
+    isbn=false,
+    giveninits=true
+]{biblatex}
+\addbibresource{references.bib}
+% Increase spacing between references
+\setlength{\bibitemsep}{0.5\baselineskip}
+
+% Use commas in inline citation 
+\renewcommand*{\nameyeardelim}{\addcomma\space}
+% Simple possessive name format
+\DeclareNameFormat{possname}{%
+  \nameparts{#1}%
+  \usebibmacro{name:family}{\namepartfamily}{\namepartgiven}{\namepartprefix}{\namepartsuffix}%
+  \usebibmacro{name:andothers}%
+  \ifnumequal{\value{listcount}}{\value{liststop}}{'s}{}%
+}
+% Possessive cite command
+\NewDocumentCommand{\posscite}{om}{%
+  \IfNoValueTF{#1}
+    {\AtNextCite{\DeclareNameAlias{labelname}{possname}}\textcite{#2}}
+    {\AtNextCite{\DeclareNameAlias{labelname}{possname}}\textcite[#1]{#2}}%
+}
+
+
+\pagestyle{plain}
+\setlength{\parskip}{1em}
+\title{AI Researchers Should Use Group Alignment to Reduce $P(\mathrm{doom})$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{plain}
+
+\input{sections/key-takeaways}
+
+\input{sections/introduction}
+\input{sections/individual-and-group-alignment}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+% Retain this bibliography entry from the Google Doc, although not cited in its latest prose.
+\nocite{de_marzo_conformity_2026}
+\newpage
+\printbibliography[title={Bibliography}]
+\clearpage
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\end{document}

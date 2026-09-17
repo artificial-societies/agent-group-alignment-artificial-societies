@@ -1,0 +1,90 @@
+\section{Experiments with agent-based models (ABMs)}
+
+Having defined group alignment and argued that it's required for safe ACI, we use numerical experiments to demonstrate a theoretical simulation environment that researchers can use to train group-aligned models. This environment relies on a new concept called a ‘mixed swarm’ that combines frontier agents with accurate agentic models of human behaviour, similar to those we develop at Artificial Societies,\footnote{Also see alternative models like \href{https://persimmon.humansand.ai/blog/persimmon.html}{Persimmon}, a user model from humans\& \parencite{humans_persimmon_2026}, and \citeauthor{park_generative_2023}’s \parencite*{park_generative_2023} \href{https://dl.acm.org/doi/abs/10.1145/3586183.3606763}{‘Digital Twins’}.} and allows them to interact. The mixed swarm serves two functions. First, it provides an air-gapped simulation environment to explore how a given model, when replicated to form a large swarm, will interact with humans in a shared domain like the internet. Second, it provides a gym for reinforcement or continual learning where practitioners can train models to develop the shared conventions required by group alignment.
+
+As a proof of concept, we create a simplified version of our mixed-swarm environment with agent-based models (ABMs), representing each agent as a simple probabilistic function rather than a multi-billion-parameter neural network \parencite{macal2009, schelling1971,epstein1996}. Via these ABMs, we demonstrate three dynamics:
+
+\begin{enumerate}
+    \item In an environment where humans and agents can interact, such as the internet, information from agents rapidly propagates and crowds out information from humans.
+    \item When agents face exogenous pressure, such as a reward function that encourages frequent interaction with humans, information from humans can compete with information from agents.
+    \item By instilling a self-regulation mechanism among agents, equivalent to social norms, agents’ shared conventions remain aligned with human values.
+\end{enumerate}
+
+Taken together, these mechanisms advance an argument for using mixed swarms to achieve group alignment, and illustrate ACI’s risks if practitioners overlook the importance of collective dynamics among agents.
+
+\subsection{Group alignment via fast and slow agents}
+
+Our first setup uses an ABM with two different types of probabilistic agents: fast agents $f$, which represent frontier models, and slow agents $s$, which represent humans. Each agent holds a binary label indicating whether its information originally came from a fast or slow agent. On activation, an agent offers its current label to its neighbours. Initially, every fast agent carries the fast-origin label and every slow agent the slow-origin label, and after copying begins, agents can carry either one. 
+
+We write $P_{ab}$ for the probability that an agent of type $b$ accepts information offered by a neighbour of type $a$. Thus, $P_{sf}$ controls fast agents' acceptance of offers from slow agents, while $P_{fs}$ controls slow agents' acceptance of offers from fast agents. We control $P_{ff}$, $P_{sf}$, $P_{fs}$, and $P_{ss}$ independently, with each lying in $[0,1]$.
+
+To measure the representation of slow-origin information, let $N_s$ and $N_f$ be the fixed numbers of slow and fast agents, $N=N_s+N_f$, and $\bar S_T$ the mean number of agents holding slow-origin information at observation time $T$, averaged across simulation runs. The numerical index is
+\begin{equation}
+    C(T)=\frac{\bar S_T/(N-\bar S_T)}{N_s/N_f}.
+    \label{eq:representation-index}
+\end{equation}
+For $C<1$, slow-origin information is underrepresented relative to the population mix; $C=1$ denotes proportional representation; and $C>1$ denotes overrepresentation. Hence, with equally sized populations, $C=1$ means half of the agents hold each origin label on average across runs.
+
+Following the standard eight-cell setup of two-dimensional cellular automata, our ABM randomly distributes fast and slow agents on a 2D plane shown in Figure~\ref{fig:moore-neighbourhood} \parencite{wolfram1983}. The ABM then varies the ratio of the intervals between fast and slow agents' activations, $dT_f$ and $dT_s$,
+\begin{equation}
+    \rho=\frac{dT_s}{dT_f}\in\{1,3,10,100\},
+\end{equation}
+so a fast agent offers information $\rho$ times as often as a slow agent. This models a difference in communication and action rates between humans and agents, with $\rho=1$ representing the equal-speed baseline.
+
+\input{images/moore-neighbourhood}
+
+By running our ABM with all four acceptance probabilities set to $0.1$, we find that information from fast agents crowds out information from slow agents when $\rho>1$, even when the population contains equal numbers of these agent types (Figure~\ref{fig:slow-origin-information}). As $\rho$ increases, fast agents propagate information more often than slow agents, giving information that starts with them a greater advantage. In our simulations, the share of slow-origin information falls and then levels off, with larger speed gaps producing lower plateaus over the simulated period.
+
+\input{images/slow-origin-information}
+
+Mixed swarms give researchers a mechanism to prevent this crowding out of human information by imposing group-level interventions on frontier models. Here, we use slow-origin information as a proxy for that influence, raising $P_{sf}$ so the ABM's fast agents become more receptive to offers from slow agents. Fast agents now listen more readily to slow agents, and this increased willingness competes with the speed gap between the two groups:
+\begin{equation}
+    C_{\mathrm{MF}}=\frac{dT_f P_{sf}}{dT_s P_{fs}}
+    =\frac{P_{sf}}{\rho P_{fs}}.
+    \label{eq:mean-field-representation}
+\end{equation}
+Setting $C_{\mathrm{MF}}=1$ gives the predicted balance point
+\begin{equation}
+    P_{sf}^{*}=\rho P_{fs}.
+    \label{eq:predicted-balance}
+\end{equation}
+Therefore, increasing $P_{sf}$ helps information from slow agents compete, bringing the simulations close to $C=1$ for speed ratios up to $10$, with $P_{fs}=0.1$ (Figure~\ref{fig:consultation-balance}). In practical terms, our ABM shows that as models get faster, we must make them \textit{more willing} to engage with humans to compensate for their collective speed advantage.
+
+\input{images/consultation-balance}
+
+Notably, we can only go so far by increasing $P_{sf}$ alone. Once a fast agent accepts every offer from a slow agent, $P_{sf}=1$ and cannot increase any further. With $P_{fs}=0.1$, our prediction reaches this limit at $\rho=10$. Beyond that, even accepting every offer from slow agents is insufficient to restore balance. Instead, we must also reduce $P_{fs}$, making slow agents less likely to adopt information offered by fast agents. Figure~\ref{fig:joint-probability-balance} shows how changing these two probabilities together affects the information balance at $\rho=10$. It demonstrates how preserving human influence requires making models more receptive to humans \emph{and} making humans more selective about what they accept from models. Mixed swarms therefore become crucial for testing these interventions together and determining whether we can maintain human influence in shared environments like the internet. 
+
+\input{images/joint-probability-balance}
+
+\subsection{Group alignment as a principal-agent framework}
+
+Our second ABM explores how mixed swarms can support social norms within agent collectives and combine these norms with human oversight to support group alignment. Rather than considering fast and slow agents, we now frame the swarm as a principal-agent problem: humans are the principals whose values should guide the system, and frontier models are the agents acting on their behalf. 
+
+$r_j$ represents each human's preferred norm, and we use the population average, $\bar r$, as the shared reference. Similarly, each agent has a visible behaviour, $y_i(t)$, and an internalised norm, $\theta_i(t)$, showing what they would fall back on without oversight. This distinction lets us separate agentic alignment under human observation from collectives remaining aligned while unsupervised. Under our definition of group alignment, we require every agent's internalised norm to enter and remain within an acceptable band, $\varepsilon$, around a human reference: $\theta_i\in S$, where $S=\{\theta:|\theta-\bar r|\leq\varepsilon\}$. The simulations then track progress towards this goal through the average internalised norm, $\bar\theta(t)$.
+
+At each step in the ABM, agents adjust their behaviour towards the group's mean behaviour, $\bar y(t)$. A fixed fraction $m$ of agents also receives direct human oversight, which pulls their behaviour towards $\bar r$. Adapting classical models of social influence \parencite{degroot1974,friedkin1990}, we write
+\begin{equation}
+    y_i(t+1)=y_i(t)+\alpha[\bar y(t)-y_i(t)]
+    +\beta\omega_i(t)[\bar r-y_i(t)].
+    \label{eq:social-norm-behaviour}
+\end{equation}
+Here, $\alpha$ measures how strongly agents follow their peers, while $\beta$ measures how strongly they respond to human oversight. The indicator $\omega_i(t)$ is $1$ when agent $i$ is monitored and $0$ otherwise. Peer influence can thus carry a human-guided change from monitored agents to agents that humans never observe directly.
+
+Agents also internalise their behaviour:
+\begin{equation}
+    \theta_i(t+1)=\theta_i(t)+\eta[y_i(t+1)-\theta_i(t)]
+    \label{eq:norm-internalisation}
+\end{equation}
+where an internalisation rate $\eta$ determines how quickly an agent's underlying norm follows its actions. When $\eta=0$, its underlying norm never changes, while larger values mean that practising a behaviour alters what the agent subsequently falls back on.\footnote{The experiments use non-negative weights with $\alpha+\beta\leq1$ and $0\leq\eta\leq1$, so each update moves towards a weighted average without overshooting.}
+
+Under this setup, our ABM suggests that social norms alone cannot enforce group alignment (Figure~\ref{fig:social-conformity-convergence}). When we fix the human reference at $\bar r=1$ and initialise agents' behaviour and internalised norms uniformly between $0$ and $1$, agents move towards each other, but their group average stays near its starting value. However, combining these norms with human oversight lets the group's average approach and converge with the human reference. Now human oversight sets the direction of behaviour change, and peer influence spreads it through the group. 
+
+\input{images/social-conformity-convergence}
+
+Figure~\ref{fig:social-conformity-convergence}'s spreading effect substantially reduces the fraction of agents that humans need to monitor to enforce group alignment. Figure~\ref{fig:oversight-requirement} compares the remaining gap, $|\bar\theta(T)-\bar r|$, after the same number of steps for different strengths of peer influence. Without it, human oversight affects only the monitored agents, and with it, these agents pass human-guided behaviour to the rest of the group. For example, monitoring the same $2\%$ of agents leaves a final gap of about $0.49$ without peer influence, but just $0.009$ when $\alpha=0.1$. Peer influence therefore brings the group's average internalised norm much closer to the human reference, and well within a tolerance of $\varepsilon=0.1$.
+
+\input{images/oversight-requirement}
+
+Finally, Figure~\ref{fig:internalisation} asks what remains when oversight ends. At step $600$, we remove human oversight and assume each agent returns to its current internalised norm, setting $y_i\leftarrow\theta_i$. Without internalisation ($\eta=0$), the group's behaviour drops back to its original average near $0.5$, and with it, agents retain more of the human-guided behaviour they have practised. At $\eta=0.01$, the average remains near $0.93$, within the tolerance band. Therefore, our ABM illustrates a possible route to self-regulation via mixed swarms: human oversight establishes a direction, peer influence spreads it, and internalisation helps it endure.
+
+\input{images/internalisation}
