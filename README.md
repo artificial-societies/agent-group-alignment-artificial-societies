@@ -1,13 +1,14 @@
 # Agent Group Alignment
 
-Research sources and reproduction materials for two Artificial Societies papers on
-**AI agent group alignment** — the problem of keeping a population of agents aligned with
-human values, as opposed to aligning any single agent.
+Research sources and reproduction materials for two Artificial Societies papers and a
+blog post on **AI agent group alignment** — the problem of keeping a population of agents
+aligned with human values, as opposed to aligning any single agent.
 
 Each paper is accompanied by the Jupyter notebook that produces its figures, so every
-numerical claim in the PDFs can be re-derived from this repository.
+numerical claim in the PDFs can be re-derived from this repository. The blog post
+synthesises both papers; its simulation figures are copies of those notebook outputs.
 
-> Blog posts: *links will be added once published*
+> Blog posts: https://societies.ai/group-alignment
 
 ## Contents
 
@@ -23,11 +24,21 @@ principal-agent-problem-framework/
     group-alignment-numerical-simulation.ipynb   all three figures
     figures/                                  fig1..fig3
 
+AI_Researchers_Should_Use_Group_Alignment_to_Reduce_P_doom/
+    main.tex / main.pdf                       blog post synthesising both papers
+    blog_style.sty                            layout (NeurIPS-derived)
+    references.bib                            biblatex + biber
+    sections/                                 key-takeaways, introduction,
+                                              individual-and-group-alignment,
+                                              experiments, conclusion
+    images/                                   six notebook figures + TikZ diagrams
+
 requirements.txt                              pinned Python dependencies
 ```
 
-Bibliography handling differs between the two: the ABM paper uses BibTeX
-(`references.bib`), the principal-agent paper carries an inline `thebibliography`.
+Bibliography handling differs across the three: the ABM paper uses BibTeX
+(`references.bib`), the principal-agent paper carries an inline `thebibliography`,
+and the blog post uses `biblatex` with a Biber backend (`references.bib`).
 
 ---
 
@@ -77,6 +88,32 @@ is a cheaper alignment lever than direct observation of each agent.
 | 2. Strong inter-agent norms let principals observe fewer agents | Small increases in norm strength α sharply cut observation burden while keeping agency loss under tolerance |
 | 3. Without internalisation, alignment decays when oversight stops | The internalisation index η is decisive — internalising agents retain human-norm influence after withdrawal |
 
+## Blog post — AI Researchers Should Use Group Alignment to Reduce P(doom)
+
+LaTeX source: [`AI_Researchers_Should_Use_Group_Alignment_to_Reduce_P_doom/`](AI_Researchers_Should_Use_Group_Alignment_to_Reduce_P_doom/). Entry point is `main.tex`.
+
+A synthesis of the two papers, written as an Artificial Societies blog post. The
+argument is that **individual alignment does not compose**: techniques that make a
+single agent safe (SFT, RLHF, chain-of-thought monitoring) do not guarantee that a
+collective of such agents will remain safe. Group alignment is defined as an
+*interaction structure*, including the shared conventions that emerge between agents,
+that reliably produces joint behaviour respecting human values.
+
+The proposed training environment is a **mixed swarm**: frontier agents interacting
+with accurate agentic models of human behaviour. Papers 1 and 2 are the proof of
+concept — a speed-asymmetric population on a grid, then a principal-agent swarm with
+peer influence, sparse oversight, and internalisation.
+
+Three conditions in the definition: *composition* (joint behaviour can fail even when
+every agent meets its own specification), *durability* (conventions hold under pressure
+to abandon them), and *incentive compatibility* (the interaction structure must not
+make violating human values the preferred option).
+
+The experiments section reuses the notebook figures under different filenames; two
+TikZ diagrams (`moore-neighbourhood.tex`, `fast-slow-communication.tex`) are drawn in
+LaTeX rather than exported from a notebook. `fast-slow-communication.tex` is present
+but not `\input` from `main.tex`.
+
 ---
 
 ## Reproducing the figures
@@ -103,6 +140,17 @@ Which notebook section produces which figure:
 | `fig2.png` | same | §2 — how many agents must be observed? |
 | `fig3.png` | same | §3 — what happens when oversight is turned off? |
 
+How those outputs appear in the blog post (`AI_Researchers_Should_Use_Group_Alignment_to_Reduce_P_doom/images/`):
+
+| Blog figure | Notebook source |
+|---|---|
+| `slow-origin-information.png` | `hypothesis_2.png` |
+| `consultation-balance.png` | `hypothesis_3.png` |
+| `joint-probability-balance.png` | `hypothesis_3_solution.png` |
+| `social-conformity-convergence.png` | `fig1.png` |
+| `oversight-requirement.png` | `fig2.png` |
+| `internalisation.png` | `fig3.png` |
+
 Figures are exported by hand from the notebooks rather than written by `savefig`.
 
 **Runtime.** The principal-agent notebook runs in seconds. The ABM notebook is the slow one:
@@ -117,11 +165,15 @@ pdflatex paper.tex && bibtex paper && pdflatex paper.tex && pdflatex paper.tex
 
 cd "../principal-agent-problem-framework"
 pdflatex paper.tex && pdflatex paper.tex
+
+cd "../AI_Researchers_Should_Use_Group_Alignment_to_Reduce_P_doom"
+pdflatex main.tex && biber main && pdflatex main.tex && pdflatex main.tex
 ```
 
 The ABM paper needs the BibTeX pass plus two further `pdflatex` runs to settle citations; the
-principal-agent paper needs `pdflatex` twice for cross-references. Both read figures from
-their own `figures/` directory.
+principal-agent paper needs `pdflatex` twice for cross-references; the blog post needs
+**Biber** (not BibTeX) plus two further `pdflatex` runs. The papers read figures from
+their own `figures/` directory; the blog post reads from `images/`.
 
 ## Citation
 
@@ -139,6 +191,13 @@ their own `figures/` directory.
             principal-agent-problem-framework},
   year   = {2026},
   note   = {Artificial Societies, University of Cambridge}
+}
+
+@misc{chen2026pdoom,
+  author = {Chen, Yitian},
+  title  = {AI Researchers Should Use Group Alignment to Reduce P(doom)},
+  year   = {2026},
+  note   = {Artificial Societies blog post}
 }
 ```
 
