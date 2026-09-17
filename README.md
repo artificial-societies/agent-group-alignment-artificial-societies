@@ -193,8 +193,8 @@ their own `figures/` directory; the blog post reads from `images/`.
   note   = {Artificial Societies, University of Cambridge}
 }
 
-@misc{chen2026pdoom,
-  author = {Chen, Yitian},
+@misc{gelainsohn2026pdoom,
+  author = {Gelain-Sohn, Emmanuel and Chen, Yitian and Wallis, Felix},
   title  = {AI Researchers Should Use Group Alignment to Reduce P(doom)},
   year   = {2026},
   note   = {Artificial Societies blog post}
