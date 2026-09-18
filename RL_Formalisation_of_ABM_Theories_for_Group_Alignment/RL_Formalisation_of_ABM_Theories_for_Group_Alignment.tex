@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath} 
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}       % Removes paragraph indentation
+\setlength{\parskip}{1em}         % Adds vertical space between paragraphs (adjust 1em as needed)
+\usepackage[backend=biber, style=authoryear]{biblatex}
+\addbibresource{references.bib}
+
+\title{RL Formalisation for Group Alignment Theories}
+\author{Yitian Chen}
+\date{September 2026}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Social influence lies as an intrinsic motivation for multi-agent deep reinforcement learning (RL) (\cite{jaques2019social}). Agents utilise counterfactual reasoning in order to maximise social influence by predicting the behaviour of other agents.
+
+This blog seeks to advance the argument in the \href{https://societies.ai/group-alignment}{research blog} I co-authored with Felix Wallis (Artificial Societies) and Emmanuelle Gellain-Sohn (Faculty) on AI agent group alignment from purely agent-based modelling (ABM) to RL environments to evaluate the robustness of these hypotheses. 
+
+The key hypotheses from presented were:
+
+\begin{enumerate}
+    \item fast agents mainly interact with each other
+    \item fast-origin information drowns out slow-origin information
+    \item more of fast agents consulting slow agents restores balance
+\end{enumerate}
+
+In the context of the research blog, fast agents are AI agents while slow agents are humans. Instead of arbitrarily setting a probability at which information propagates from one type of agent to another and then applying numerical methods to verify these hypotheses, RL formalisation uses agents' local self interest to find the optimum probabilities. 
+
+
+\section{Theoretical Framework}
+
+In order to construct the foundational reward on an agent's individual level, we will use Jaques et al (2019)'s paper as a basis to prove the theories. The framework constitutes one Markov game tuple for each agent that contains the minimum information needed for RL purposes.
+
+Consider the application of Markov game tuples (s, T, A, r), where s = state, T = transition, A = action, r = reward, to AI agents. To maximise reward, agents undertake an action. This action then requires transition from one state to the next. 
+
+The full action space of these agents are described by a 1D vector space $\boldsymbol{a_t}=[a_t^0, a_t^1,a_t^2, ..., a_t^N]$, where the superscript represents the agents' identity (from $0$ to $N$) and the subscript represents their action at time $t$. 
+
+The transition function between the environments is defined as $T(s_{t+1} \vert \boldsymbol{a_t}, s_t)$. The 
+state transition of any agent depends on on the full action space of all agents and the previous state of that agent.
+
+The reward that agent $k$ receives is defined as a function $r^k(\boldsymbol{a_t}, s_t)$. 
+
+Through RL training, each agent maximises its own total discounted future reward:
+
+\begin{equation}
+    R^k = \sum_{i=0}^{\infty}\gamma^i r_{t+i}^k = \sum_{i=0}^{\infty}\gamma^i r^k(\boldsymbol{a_{t+i}}, s_{t+i})
+\end{equation}
+
+
+where $\gamma$ is the discount factor that ensures convergence when $0\leq \gamma < 1$. 
+
+The premise of the theory is that social influence between agents is the underlying intrinsic motivation behind actions. Their reward is based on higher mutual information about each other's actions. We thus define social influence as a combination of extrinsic environmental reward and intrinsic influence reward: 
+
+\begin{equation}
+  r^k_t = \alpha e^k_t + \beta c^k_t 
+\end{equation}
+
+
+
+where $\alpha$ and $\beta$ are respective reward parameters. 
+
+Within this reward framework, agents entertain counterfactual reasoning, whereby they predict what actions other agents could have achieved. 
+
+To illustrate, counterfactual reasoning is considered like this: Suppose agents j and k exist. Agent j's next action is equal to the probability of action given that k's hypothetical action space and j's state space are both known, i.e. $P(a^j_t \vert \tilde{a}^k_t , s^k_t )$. $\tilde{a}^k_t$ represents all the possible actions agent k could have taken, predicted by model of other agents (MOA) architecture. 
+
+MOA is a simple prediction network each agent carries. It uses the agents' current observation and the previous actions of all agents to produce a probability distribution of future actions of all agents. Subsequently, the most likely predicted outcomes are fed into the agent to produce outputs. Social influence amongst agents is thus defined as how much an agent's actions shifted other agents' decisions compared with what they would have done without seeing its actions. 
+
+Advancing this argument, the intrinsic influence reward for an agent k is thus now defined as 
+
+\begin{equation}
+    c_t^k = \sum_{j=0,\, j\neq k}^{N} \left[ D_{KL}\!\left[\, p\!\left(a_t^j \,\middle|\, a_t^k, s_t^j\right) \,\middle\|\, \sum_{\tilde{a}_t^k} p\!\left(a_t^j \,\middle|\, \tilde{a}_t^k, s_t^j\right) p\!\left(\tilde{a}_t^k \,\middle|\, s_t^j\right) \right] \right]
+\end{equation} 
+
+The equation maximises such influence reward when the the divergence between actual outcomes and expected outcomes are maximised. This result occurs when an agent performs a drastic different action to what it would have done if it did not consider the hypothetical actions of others. Alternatively, the reward is maximised when j's action knowing k's action is vastly different from j's action knowing all other hypothetical k's action. The latter is the counterfactual term.
+
+
+
+
+\section{Application for Group Alignment}
+
+In AI agent group alignment through applying fast, slow agent framework, the term to maximise is the reward $c^k_t$ that correspond to how much influence slow agents have on fast agents.
+
+The core difference between RL environment and previous ABM environment is whether the listening rule is assumed or learned. The ABM assumes a listening rule (e.g. $P_{sf}$ and then derives the response, while the RL environment justifies a rule from the reward function and then derives the response. 
+
+Drawing parallels with the ABM, RL formalisation takes the shape as follows:
+
+
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{ABM} & \textbf{RL Formalisation} \\
+        \midrule
+        Moore neighbourhood & Observation function \\
+        Agent type (fast / slow) & Speed to update reward \\
+        Probability parameter P & Learned policy \\
+        \bottomrule
+    \end{tabular}
+    \caption{Comparison between ABM and RL formalised key distinctions}
+    \label{tab:abm_rl_comparison}
+\end{table}
+
+
+
+
+
+\section{Implications}
+
+RL environments reveal more subtle insights to group alignment than ABM captures. Primarily, the slow agent dilemma is amplified through asymmetric social influence reward structures that favour fast agents. 
+
+Specifically, slow agents (humans) are much easier to be influenced by fast agents than by other slow agents. The reason is that it takes much more effort to consult the ground truth (original source) than to read summaries by fast agents (e.g. LLM agents), or simply delegate tasks to fast agents that previously require slow agents (e.g. programming). This means that hypothesis 2 (fast-origin information drowns out slow-origin information) becomes more evident. 
+
+The premise of RL environment formalisation purely serves as a proof of concept for optimising the probability of an agent accepting information from another agent through a learned policy, rather than  setting a probability value arbitrarily. At its core, this is a supplement to the ABM, but does not supersede the conclusions drawn from it. 
+
+\printbibliography
+
+
+
+\end{document}
