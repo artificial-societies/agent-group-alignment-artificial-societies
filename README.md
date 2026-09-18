@@ -1,14 +1,12 @@
 # Agent Group Alignment
 
-Research sources and reproduction materials for two Artificial Societies papers, a
-blog post, and an RL formalisation note on **AI agent group alignment** — the problem of
-keeping a population of agents aligned with human values, as opposed to aligning any
-single agent.
+Research sources and reproduction materials for two Artificial Societies papers and a
+blog post on **AI agent group alignment** — the problem of keeping a population of agents
+aligned with human values, as opposed to aligning any single agent.
 
 Each paper is accompanied by the Jupyter notebook that produces its figures, so every
 numerical claim in the PDFs can be re-derived from this repository. The blog post
 synthesises both papers; its simulation figures are copies of those notebook outputs.
-The RL note recasts the ABM hypotheses as a multi-agent RL problem and has no figures.
 
 > Blog posts: https://societies.ai/group-alignment
 
@@ -35,17 +33,12 @@ AI_Researchers_Should_Use_Group_Alignment_to_Reduce_P_doom/
                                               experiments, conclusion
     images/                                   six notebook figures + TikZ diagrams
 
-RL_Formalisation_of_ABM_Theories_for_Group_Alignment/
-    RL_Formalisation_of_ABM_Theories_for_Group_Alignment.tex / .pdf
-                                              Markov-game recasting of the ABM
-    references.bib                            biblatex + biber (Jaques et al. 2019)
-
 requirements.txt                              pinned Python dependencies
 ```
 
-Bibliography handling differs: the ABM paper uses BibTeX (`references.bib`), the
-principal-agent paper carries an inline `thebibliography`, and both the blog post
-and the RL note use `biblatex` with a Biber backend (`references.bib`).
+Bibliography handling differs across the three: the ABM paper uses BibTeX
+(`references.bib`), the principal-agent paper carries an inline `thebibliography`,
+and the blog post uses `biblatex` with a Biber backend (`references.bib`).
 
 ---
 
@@ -121,32 +114,6 @@ TikZ diagrams (`moore-neighbourhood.tex`, `fast-slow-communication.tex`) are dra
 LaTeX rather than exported from a notebook. `fast-slow-communication.tex` is present
 but not `\input` from `main.tex`.
 
-## RL note — RL Formalisation for Group Alignment Theories
-
-LaTeX source: [`RL_Formalisation_of_ABM_Theories_for_Group_Alignment/`](RL_Formalisation_of_ABM_Theories_for_Group_Alignment/). Entry point is `RL_Formalisation_of_ABM_Theories_for_Group_Alignment.tex`.
-
-A follow-on to the blog post that recasts the three ABM hypotheses as a
-**multi-agent RL** problem, so the listening rule is *learned* from a reward rather
-than set as an exogenous probability P_ab.
-
-The setup is a Markov game (s, T, A, r) per agent, following Jaques et al. (2019):
-each agent maximises discounted return, and the per-step reward mixes an extrinsic
-environmental term with an **intrinsic social-influence** term — the KL divergence
-between other agents' actual actions and their counterfactual actions under a model
-of other agents (MOA). For group alignment, the quantity to maximise is slow agents'
-influence on fast agents.
-
-| ABM | RL formalisation |
-|---|---|
-| Moore neighbourhood | observation function |
-| Agent type (fast / slow) | speed of reward update |
-| Probability parameter P | learned policy |
-
-The note argues that an RL environment **amplifies** the slow-agent dilemma
-(hypothesis 2), because it is cheaper for humans to take summaries from fast agents
-than to consult other humans. It is a supplement to the ABM, not a replacement, and
-contains no new simulations.
-
 ---
 
 ## Reproducing the figures
@@ -201,19 +168,12 @@ pdflatex paper.tex && pdflatex paper.tex
 
 cd "../AI_Researchers_Should_Use_Group_Alignment_to_Reduce_P_doom"
 pdflatex main.tex && biber main && pdflatex main.tex && pdflatex main.tex
-
-cd "../RL_Formalisation_of_ABM_Theories_for_Group_Alignment"
-pdflatex RL_Formalisation_of_ABM_Theories_for_Group_Alignment.tex \
-  && biber RL_Formalisation_of_ABM_Theories_for_Group_Alignment \
-  && pdflatex RL_Formalisation_of_ABM_Theories_for_Group_Alignment.tex \
-  && pdflatex RL_Formalisation_of_ABM_Theories_for_Group_Alignment.tex
 ```
 
 The ABM paper needs the BibTeX pass plus two further `pdflatex` runs to settle citations; the
-principal-agent paper needs `pdflatex` twice for cross-references; the blog post and the RL
-note need **Biber** (not BibTeX) plus two further `pdflatex` runs. The papers read figures
-from their own `figures/` directory; the blog post reads from `images/`; the RL note has
-no figures.
+principal-agent paper needs `pdflatex` twice for cross-references; the blog post needs
+**Biber** (not BibTeX) plus two further `pdflatex` runs. The papers read figures from
+their own `figures/` directory; the blog post reads from `images/`.
 
 ## Citation
 
@@ -238,13 +198,6 @@ no figures.
   title  = {AI Researchers Should Use Group Alignment to Reduce P(doom)},
   year   = {2026},
   note   = {Artificial Societies blog post}
-}
-
-@misc{chen2026rl,
-  author = {Chen, Yitian},
-  title  = {RL Formalisation for Group Alignment Theories},
-  year   = {2026},
-  note   = {Artificial Societies, University of Cambridge}
 }
 ```
 
